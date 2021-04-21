@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>AGV SCADA: Manual Control</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="static/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="#">SCADA</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li><a href="/">Home</a></li>
+        <li class="active"><a href="/remote_control">Remote Control</a></li>
+        <li><a href="#">Data Capture</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><input type="button" class="btn btn-lg btn-danger btn-block" onclick="sendMotion('estop')" value="E-STOP"></li>
+        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+  
+<div class="container-fluid text-center">  
+  
+ <div class="row content">
+   <div class="col-sm-2 panel-group">
+    <div class="panel-heading" style="margin-top:5px; font-weight:bold">Telemetry</div>
+     <div class="panel-body">
+      <table class="table">
+       <tr>
+        <th>Parameter:</th>
+        <th>Value:</th>
+       <tr>
+        <td>Run-time:</td>
+        <td id="runtime">{{runtime}}</td>
+       <tr>
+        <td>Distance Covered:</td>
+        <td>N/A</td>
+       <tr>
+        <td>Motor Amps:</td>
+        <td id="motAmps">N/A</td>
+       <tr>
+        <td>Battery Voltage:</td>
+        <td id="batVolt">N/A</td>
+       <tr>
+        <td>Errors Logged:</td>
+        <td>N/A</td>
+      </table>
+     </div>
+    </div>
+
+  <div class="col-sm-8 text-left"> 
+      <h2 style="text-align:center;">Remote Control</h2>
+      <p style="text-align:center;">Manually control the AGV from here</p>
+
+    <div class="container-fluid">
+      <div class="col-sm-4 text-center">
+        <table class="" border="0">
+        <tr>
+          <td></td>
+          <td><img style="width:100px;height:100px;" src="/static/images/arrows/forward.png" onclick="sendMotion('forward')"></td>
+          <td></td>
+        <tr>
+          <td><img style="width:100px;height:100px;" src="/static/images/arrows/left.png" onclick="sendMotion('left')"></td>
+          <td><input style="width:100px;height:100px;margin:10px;" type="button" class="btn btn-lg btn-block btn-danger" value="ESTOP" onclick="sendMotion('estop')"></td>
+          <td><img style="width:100px;height:100px;" src="/static/images/arrows/right.png" onclick="sendMotion('right')"></td>
+        <tr>
+          <td></td>
+          <td><img style="width:100px;height:100px;" src="/static/images/arrows/backward.png" onclick="sendMotion('backward')"></td>
+          <td></td>
+        </table>
+      </div>
+
+      <div class="col-sm-2 text-center">
+        <iframe src="http://192.168.1.16:8082/stream" style="width:block"></iframe>
+      </div> 
+
+      <div class="col-sm-8 text-center">
+        <table class="" border="0">
+          <tr>
+            <td><input type="button" class="btn btn-lg btn-block btn-success" value="Pin Up/Down" onclick="sendMotion('toggle_pin')"></td>
+          </tr>
+          <tr>
+            <td><input type="button" class="btn btn-lg btn-block btn-primary" value="Kinect On/Off" onclick="sendMotion('toggle_kin')"></td>
+          </tr>
+          <tr>
+            <td><input type="button" class="btn btn-lg btn-block btn-warning" value="LED On/Off" onclick="sendMotion('toggle_led')"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-2 sidenav">
+    <div class="well">
+      <p>ADS</p>
+    </div>
+    <div class="well">
+      <p>ADS</p>
+    </div>
+  </div>
+ </div>
+</div>
+
+<div class="row">
+  <footer class="container-fluid">
+    <h5 stlye="text-align:left; margin-left:10px;">WHEBMI - Web-based Human-Machine Interface Solutions</h5>
+    <h6 style="text-align:right; margin-right:10px">Developed by Justin Gregan<span class="glyphicon glyphicon-sunglasses"</span></h6>
+  </footer>
+</div>
+
+<!-- Scripts -->
+<script type="text/javascript">
+    document.onkeypress = keypressed;
+    var last_action = "";
+    var start_dt = new Date ( );
+    var last_mills = start_dt.getTime ( );
+  
+    function sendMotion (action) {
+      var run_dt = new Date ( );
+      var mills = run_dt.getTime ( );
+   
+    // If a duplicate, ignore if newer than .500ms
+      if (action == last_action && (mills - last_mills) <= 500)
+        return;
+
+      last_mills = mills;
+      last_action = action;
+      request = new XMLHttpRequest ( );
+      request.open ("GET", action, true);
+      request.send ( );
+    }
+
+  function keypressed (event) {
+    var keyCd = ('charCode' in event) ? event.charCode : event.keyCode;
+
+    if (keyCd == 49)            // 1
+        sendMotion ('panlt')
+
+    if (keyCd == 50)            // 2
+        sendMotion ('panrt')
+
+    if (keyCd == 51)            // 3
+        sendMotion ('panfull_lt')
+
+    if (keyCd == 52)
+        sendMotion ('panfull_rt') // 4
+
+    if (keyCd == 47)            // /
+        sendMotion ('home')
+
+    if (keyCd == 113 || keyCd == 81)  // q
+        sendMotion ('ltforward')
+
+    if (keyCd == 119 || keyCd == 87)  // w
+        sendMotion ('forward')
+
+    if (keyCd == 122 || keyCd == 90)  // z
+        sendMotion ('backward')
+
+    if (keyCd == 101 || keyCd == 69)  // e
+        sendMotion ('rtforward')
+
+    if (keyCd == 97 || keyCd == 65)   // a
+        sendMotion ('left')
+
+    if (keyCd == 104 || keyCd == 72)  // h
+        sendMotion ('stop')
+
+    if (keyCd == 115 || keyCd == 83)  // s
+        sendMotion ('right')
+  }
+
+  // Table values live update workarounds
+  
+  //live-update function placeholder//
+
+  setTimeout(function(){window.location.reload(1);}, 10000);
+
+  window.onload = sendMotion('loaded');
+</script>
+
+</body>
+</html>

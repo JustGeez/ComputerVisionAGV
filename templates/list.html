@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+
+    <body>
+
+        <table border=1>
+                <th>Battery Voltage</th>
+                <th>Runtime</th>
+            {% for row in rows %}
+                <tr>
+                    <td>{{row["BatteryVoltage"]}}</td>
+                    <td>{{row["Runtime"]}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <a href="\">Go back to home page</a>
+
+    </body>
+</html>
